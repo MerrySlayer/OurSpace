@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OurSpace - Share Your Space Stories!</title>
+  <style>
+    /* Your existing CSS styles */
+    /* Additional styles for like button */
+   /* Reset CSS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Global styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  line-height: 1.6;
+  
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header */
+header {
+  background-color: #29323a;
+  color: #fff;
+  padding: 20px 0;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2em;
+}
+
+/* Navigation */
+nav {
+  background-color: #eee;
+  padding: 10px 0;
+}
+
+nav ul {
+  list-style: none;
+  text-align: center;
+}
+
+nav ul li {
+  display: inline;
+  margin: 0 10px;
+}
+
+nav ul li a {
+  color: #333;
+  text-decoration: none;
+}
+
+/* Main Content */
+main {
+  padding: 20px 0;
+}
+
+/* Article Section */
+section#submit, section#articles {
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+section#submit h2, section#articles h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+form input[type="text"],
+form textarea,
+form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+form button[type="submit"],
+article button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+/* Articles */
+ul#article-list {
+  list-style: none;
+}
+
+.article {
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.article h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.article p {
+  color: #666;
+}
+
+.article .category {
+  font-size: 0.8em;
+  color: #888;
+}
+
+/* Search Bar */
+#search-bar {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+/* Most Liked Article */
+#most-liked {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#most-liked h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#most-liked .article {
+  border-color: #28a745;
+}
+</style>
+
+</head>
+<body>
+  <header>
+    <h1>OurSpace: Share your knowledge about the wonders of Space!</h1>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#about">About Us</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="submit">
+      <h2>Submit Your Article</h2>
+      <form id="article-form">
+        <label for="title">Article Title:</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="content">Article Content:</label>
+        <textarea id="content" name="content" required></textarea>
+
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+          <option value="space-exploration">Space Exploration</option>
+          <option value="astronomy">Astronomy</option>
+          <option value="space-technology">Space Technology</option>
+        </select>
+
+        <button type="submit">Submit Article</button>
+      </form>
+    </section>
+
+    <section id="articles">
+      <h2>All Articles</h2>
+      <input type="text" id="search-bar" placeholder="Search articles...">
+      <ul id="article-list">
+        <!-- Articles will be dynamically added here -->
+      </ul>
+    </section>
+
+    <!-- Section for most liked article -->
+    <section id="most-liked">
+      <h2>Most Liked Article</h2>
+      <div id="most-liked-article"></div>
+    </section>
+  </main>
+
+  <script>
+    const submitForm = document.getElementById('article-form');
+    const articleList = document.getElementById('article-list');
+    const mostLikedArticleContainer = document.getElementById('most-liked-article');
+    const searchBar = document.getElementById('search-bar');
+    let mostLikedArticle = JSON.parse(localStorage.getItem('mostLikedArticle')) || null;
+    let maxLikes = mostLikedArticle ? mostLikedArticle.likes : 0;
+
+    // Function to display an article
+    function displayArticle(title, content, category) {
+      const articleItem = document.createElement('li');
+      articleItem.classList.add('article');
+
+      const articleTitle = document.createElement('h3');
+      articleTitle.textContent = title;
+
+      const articleContent = document.createElement('p');
+      articleContent.textContent = content;
+
+      const articleCategory = document.createElement('span');
+      articleCategory.classList.add('category');
+      articleCategory.textContent = category;
+
+      // Like button for each article
+      const likeButton = document.createElement('button');
+      likeButton.textContent = 'Like';
+      likeButton.classList.add('like-btn');
+
+      // Initialize like count
+      let likes = 0;
+
+      // Event listener for like button
+      likeButton.addEventListener('click', function () {
+        // Increment like count
+        likes++;
+
+        // Update like count in the DOM
+        likeButton.textContent = `Liked (${likes})`;
+
+        // Update most liked article if necessary
+        if (likes > maxLikes) {
+          mostLikedArticle = {
+            title,
+            content,
+            category,
+            likes
+          };
+          maxLikes = likes;
+          localStorage.setItem('mostLikedArticle', JSON.stringify(mostLikedArticle));
+          displayMostLikedArticle();
+        }
+      });
+
+      articleItem.appendChild(articleTitle);
+      articleItem.appendChild(articleContent);
+      articleItem.appendChild(articleCategory);
+      articleItem.appendChild(likeButton);
+
+      articleList.prepend(articleItem); // Add new article at the top
+    }
+
+    // Load articles from localStorage on page load
+    function loadArticles() {
+      const storedArticles = JSON.parse(localStorage.getItem('articles'));
+      if (storedArticles) {
+        storedArticles.forEach(article => {
+          displayArticle(article.title, article.content, article.category);
+        });
+      }
+    }
+
+    loadArticles(); // Call on page load
+
+    submitForm.addEventListener('submit', function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const title = document.getElementById('title').value;
+      const content = document.getElementById('content').value;
+      const category = document.getElementById('category').value;
+
+      // Store article data in localStorage
+      const newArticle = { title, content, category };
+      let articles = JSON.parse(localStorage.getItem('articles')) || [];
+      articles.unshift(newArticle); // Add new article at the beginning
+      localStorage.setItem('articles', JSON.stringify(articles));
+
+      // Display the newly submitted article
+      displayArticle(title, content, category);
+
+      // Inform user about successful submission (limited feedback)
+      alert('Article submitted successfully (locally)!');
+
+      // Clear the form after submission
+      this.reset();
+    });
+
+    // Search functionality
+    searchBar.addEventListener('input', function () {
+      const searchValue = searchBar.value.toLowerCase();
+      const articles = document.querySelectorAll('.article');
+
+      articles.forEach(article => {
+        const title = article.querySelector('h3').textContent.toLowerCase();
+        if (title.includes(searchValue)) {
+          article.style.display = 'block';
+        } else {
+          article.style.display = 'none';
+        }
+      });
+    });
+
+    // Function to display most liked article
+    function displayMostLikedArticle() {
+      if (mostLikedArticle) {
+        mostLikedArticleContainer.innerHTML = `
+          <div class="article">
+            <h3>${mostLikedArticle.title}</h3>
+            <p>${mostLikedArticle.content}</p>
+            <span class="category">${mostLikedArticle.category}</span>
+            <button class="like-btn">Liked (${mostLikedArticle.likes})</button>
+          </div>
+        `;
+      }
+    }
+
+    // Call function to display most liked article
+    displayMostLikedArticle();
+  </script>
+</body>
+</html>
